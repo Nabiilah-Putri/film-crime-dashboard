@@ -29,15 +29,28 @@ final_data = load_final_data()
 # SIDEBAR FILTER
 # -------------------------------
 st.sidebar.header("Filter")
-countries = sorted(final_data["Negara"].unique())
-years = sorted(final_data["Tahun"].unique())
 
-selected_country = st.sidebar.selectbox("Pilih Negara", countries)
+countries = sorted(final_data["Negara"].unique())
+country_options = ["All"] + countries
+
+selected_countries = st.sidebar.multiselect(
+    "Pilih Negara (bisa satu, banyak, atau All)",
+    options=country_options,
+    default=["All"]
+)
+
+years = sorted(final_data["Tahun"].unique())
 selected_years = st.sidebar.slider("Rentang Tahun", min_value=min(years), max_value=max(years),
                                    value=(min(years), max(years)))
 
-filtered = final_data[(final_data["Negara"] == selected_country) &
-                      (final_data["Tahun"].between(selected_years[0], selected_years[1]))]
+# Logika filter negara
+if "All" in selected_countries or len(selected_countries) == 0:
+    filtered = final_data[final_data["Tahun"].between(selected_years[0], selected_years[1])]
+else:
+    filtered = final_data[
+        (final_data["Negara"].isin(selected_countries)) &
+        (final_data["Tahun"].between(selected_years[0], selected_years[1]))
+    ]
 
 # -------------------------------
 # DASHBOARD
@@ -47,7 +60,7 @@ st.caption("Interaktif: jelajahi jumlah film per genre, tren per tahun, dan hubu
 
 # KPI
 col1, col2, col3 = st.columns(3)
-col1.metric("Negara", selected_country)
+col1.metric("Negara", ", ".join(selected_countries) if "All" not in selected_countries else "All ASEAN")
 col2.metric("Periode", f"{selected_years[0]}–{selected_years[1]}")
 col3.metric("Jumlah Data", len(filtered))
 
