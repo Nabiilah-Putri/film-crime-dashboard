@@ -158,21 +158,32 @@ with tab6:
         "mean": "Mean", "std": "Std", "min": "Min", "max": "Max", "median": "Median"
     })
 
+    stats_reset = stats.reset_index().rename(columns={"index": "Genre"})
+
     # Bar chart Mean per Genre
-    fig_mean = px.bar(stats.reset_index(), x="index", y="Mean", title="Rata-rata Film per Genre")
+    fig_mean = px.bar(stats_reset, x="Genre", y="Mean", title="Rata-rata Film per Genre")
     st.plotly_chart(fig_mean, use_container_width=True)
 
     # Error bar chart (Mean ± Std)
-    fig_error = px.bar(stats.reset_index(), x="index", y="Mean", error_y=stats["Std"],
+    fig_error = px.bar(stats_reset, x="Genre", y="Mean", error_y=stats_reset["Std"],
                        title="Mean dengan Standard Deviation per Genre")
     st.plotly_chart(fig_error, use_container_width=True)
 
-    # Radar chart (Spider plot)
-    fig_radar = go.Figure()
-    fig_radar.add_trace(go.Scatterpolar(
-        r=stats["Mean"],
-        theta=stats.index,
-        fill='toself'
-    ))
-    fig_radar.update_layout(title="Radar Chart Mean per Genre", polar=dict(radialaxis=dict(visible=True)))
-    st.plotly_chart(fig_radar, use_container_width=True)
+    # Error bar chart (Mean ± Min–Max)
+    fig_minmax = px.bar(stats_reset, x="Genre", y="Mean", title="Mean dengan Min–Max per Genre")
+    fig_minmax.update_traces(
+        error_y=dict(array=stats_reset["Max"] - stats_reset["Mean"]),
+        error_y_minus=dict(array=stats_reset["Mean"] - stats_reset["Min"])
+    )
+    st.plotly_chart(fig_minmax, use_container_width=True)
+
+    # Tambahkan label angka Min–Max di atas bar
+    fig_minmax_labels = px.bar(
+        stats_reset,
+        x="Genre",
+        y="Mean",
+        text=stats_reset.apply(lambda row: f"Min:{row['Min']} | Max:{row['Max']}", axis=1),
+        title="Mean dengan Label Min–Max per Genre"
+    )
+    fig_minmax_labels.update_traces(textposition="outside")
+    st.plotly_chart(fig_minmax_labels, use_container_width=True)
