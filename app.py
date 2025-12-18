@@ -150,12 +150,6 @@ with tab5:
 with tab6:
     st.subheader("Visualisasi Statistik Deskriptif")
 
-    # Ambil stats dari Tab 5
-    num_cols = [c for c in final_data.columns if c not in ["Negara", "Tahun"]]
-    stats = filtered[num_cols].agg(["mean", "std", "min", "max", "median"]).T
-    stats = stats.rename(columns={
-        "mean": "Mean", "std": "Std", "min": "Min", "max": "Max", "median": "Median"
-    })
     stats_reset = stats.reset_index().rename(columns={"index": "Genre"})
 
     # Bar chart Mean per Genre
