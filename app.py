@@ -144,6 +144,7 @@ with tab5:
     ax[1].set_title("Boxplot Crime Rate")
     st.pyplot(fig5)
 
+
 # -------------------------------
 # TAB 6: Visualisasi Statistik Deskriptif
 # -------------------------------
@@ -176,8 +177,13 @@ with tab6:
     st.plotly_chart(fig_minmax, use_container_width=True)
 
     # Bar chart dengan label Min–Max
+    stats_reset["Label"] = stats_reset.apply(lambda row: f"Min:{row['Min']} | Max:{row['Max']}", axis=1)
     fig_minmax_labels = px.bar(
         stats_reset,
         x="Genre",
         y="Mean",
-        text=stats_reset.apply(lambda row: f"Min:{row['Min']} | Max:{row['Max']}", axis=1),
+        text="Label",
+        title="Mean dengan Label Min–Max per Genre"
+    )
+    fig_minmax_labels.update_traces(textposition="outside")
+    st.plotly_chart(fig_minmax_labels, use_container_width=True)
