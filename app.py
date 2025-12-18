@@ -74,47 +74,50 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 # -------------------------------
-# TAB 1: Distribusi Genre
+# TAB 1: Distribusi Genre (perbandingan antar negara)
 # -------------------------------
 with tab1:
-    st.subheader("Distribusi Genre Film")
+    st.subheader("Distribusi Genre Film per Negara")
     genre_cols = [c for c in final_data.columns if c not in ["Negara", "Tahun", "Crime Rate"]]
-    genre_sum = filtered[genre_cols].sum().reset_index()
-    genre_sum.columns = ["Genre", "Jumlah"]
-    fig = px.bar(genre_sum, x="Genre", y="Jumlah", title="Jumlah Film per Genre")
+    genre_sum = filtered.groupby("Negara")[genre_cols].sum().reset_index()
+    genre_melt = genre_sum.melt(id_vars="Negara", var_name="Genre", value_name="Jumlah")
+    fig = px.bar(genre_melt, x="Genre", y="Jumlah", color="Negara", barmode="group",
+                 title="Jumlah Film per Genre per Negara")
     st.plotly_chart(fig, use_container_width=True)
 
 # -------------------------------
-# TAB 2: Tren Film & Crime Rate
+# TAB 2: Tren Film & Crime Rate (perbandingan antar negara)
 # -------------------------------
 with tab2:
-    st.subheader("Tren Jumlah Film & Crime Rate")
-    film_counts = filtered.groupby("Tahun")[genre_cols].sum().sum(axis=1).reset_index(name="Jumlah Film")
-    crime_trend = filtered[["Tahun", "Crime Rate"]].dropna()
-    trend_df = pd.merge(film_counts, crime_trend, on="Tahun", how="outer").sort_values("Tahun")
+    st.subheader("Tren Jumlah Film & Crime Rate per Negara")
+    film_counts = filtered.groupby(["Negara","Tahun"])[genre_cols].sum().sum(axis=1).reset_index(name="Jumlah Film")
+    crime_trend = filtered[["Negara","Tahun","Crime Rate"]]
+    trend_df = pd.merge(film_counts, crime_trend, on=["Negara","Tahun"], how="inner")
 
-    fig1 = px.bar(trend_df, x="Tahun", y="Jumlah Film", title="Jumlah Film per Tahun")
+    fig1 = px.line(trend_df, x="Tahun", y="Jumlah Film", color="Negara", markers=True,
+                   title="Jumlah Film per Tahun per Negara")
     st.plotly_chart(fig1, use_container_width=True)
 
-    fig2 = px.line(trend_df, x="Tahun", y="Crime Rate", markers=True, title="Crime Rate per Tahun")
+    fig2 = px.line(trend_df, x="Tahun", y="Crime Rate", color="Negara", markers=True,
+                   title="Crime Rate per Tahun per Negara")
     st.plotly_chart(fig2, use_container_width=True)
 
 # -------------------------------
-# TAB 3: Scatter Jumlah Film vs Crime Rate
+# TAB 3: Scatter Jumlah Film vs Crime Rate (perbandingan antar negara)
 # -------------------------------
 with tab3:
-    st.subheader("Scatter Plot Jumlah Film vs Crime Rate")
-    film_counts = filtered.groupby("Tahun")[genre_cols].sum().sum(axis=1).reset_index(name="Jumlah Film")
-    scatter_df = pd.merge(film_counts, filtered[["Tahun", "Crime Rate"]], on="Tahun", how="inner")
-    fig3 = px.scatter(scatter_df, x="Jumlah Film", y="Crime Rate", color="Tahun",
-                      trendline="ols", title="Jumlah Film vs Crime Rate")
+    st.subheader("Scatter Plot Jumlah Film vs Crime Rate per Negara")
+    film_counts = filtered.groupby(["Negara","Tahun"])[genre_cols].sum().sum(axis=1).reset_index(name="Jumlah Film")
+    scatter_df = pd.merge(film_counts, filtered[["Negara","Tahun","Crime Rate"]], on=["Negara","Tahun"], how="inner")
+    fig3 = px.scatter(scatter_df, x="Jumlah Film", y="Crime Rate", color="Negara",
+                      title="Jumlah Film vs Crime Rate per Negara", trendline="ols")
     st.plotly_chart(fig3, use_container_width=True)
 
 # -------------------------------
-# TAB 4: Korelasi Heatmap
+# TAB 4: Korelasi Heatmap (gabungan data filter)
 # -------------------------------
 with tab4:
-    st.subheader("Korelasi Genre dengan Crime Rate")
+    st.subheader("Korelasi Genre dengan Crime Rate (gabungan data filter)")
     corr = filtered[genre_cols + ["Crime Rate"]].corr()
     fig4, ax = plt.subplots(figsize=(12, 8))
     sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
