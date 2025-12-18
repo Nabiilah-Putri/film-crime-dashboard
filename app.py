@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
 
 st.set_page_config(page_title="Dashboard Film & Kriminalitas ASEAN", layout="wide")
 
@@ -157,7 +156,6 @@ with tab6:
     stats = stats.rename(columns={
         "mean": "Mean", "std": "Std", "min": "Min", "max": "Max", "median": "Median"
     })
-
     stats_reset = stats.reset_index().rename(columns={"index": "Genre"})
 
     # Bar chart Mean per Genre
@@ -177,13 +175,9 @@ with tab6:
     )
     st.plotly_chart(fig_minmax, use_container_width=True)
 
-    # Tambahkan label angka Min–Max di atas bar
+    # Bar chart dengan label Min–Max
     fig_minmax_labels = px.bar(
         stats_reset,
         x="Genre",
         y="Mean",
         text=stats_reset.apply(lambda row: f"Min:{row['Min']} | Max:{row['Max']}", axis=1),
-        title="Mean dengan Label Min–Max per Genre"
-    )
-    fig_minmax_labels.update_traces(textposition="outside")
-    st.plotly_chart(fig_minmax_labels, use_container_width=True)
