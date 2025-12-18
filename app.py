@@ -198,3 +198,9 @@ with tab6:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+    # Bar chart Mean per Genre
+    fig_mean = px.bar(stats.reset_index(), x="index", y="Mean", title="Rata-rata Film per Genre")
+    st.plotly_chart(fig_mean, use_container_width=True)
+
+
