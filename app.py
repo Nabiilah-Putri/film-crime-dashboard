@@ -75,7 +75,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 ])
 
 # -------------------------------
-# TAB 1: Distribusi Genre (perbandingan antar negara)
+# TAB 1: Distribusi Genre
 # -------------------------------
 with tab1:
     st.subheader("Distribusi Genre Film per Negara")
@@ -87,7 +87,7 @@ with tab1:
     st.plotly_chart(fig, use_container_width=True)
 
 # -------------------------------
-# TAB 2: Tren Film & Crime Rate (perbandingan antar negara)
+# TAB 2: Tren Film & Crime Rate
 # -------------------------------
 with tab2:
     st.subheader("Tren Jumlah Film & Crime Rate per Negara")
@@ -104,7 +104,7 @@ with tab2:
     st.plotly_chart(fig2, use_container_width=True)
 
 # -------------------------------
-# TAB 3: Scatter Jumlah Film vs Crime Rate (perbandingan antar negara)
+# TAB 3: Scatter Jumlah Film vs Crime Rate
 # -------------------------------
 with tab3:
     st.subheader("Scatter Plot Jumlah Film vs Crime Rate per Negara")
@@ -115,7 +115,7 @@ with tab3:
     st.plotly_chart(fig3, use_container_width=True)
 
 # -------------------------------
-# TAB 4: Korelasi Heatmap (gabungan data filter)
+# TAB 4: Korelasi Heatmap
 # -------------------------------
 with tab4:
     st.subheader("Korelasi Genre dengan Crime Rate (gabungan data filter)")
@@ -143,7 +143,6 @@ with tab5:
     sns.boxplot(x=filtered["Crime Rate"], color="lightgreen", ax=ax[1])
     ax[1].set_title("Boxplot Crime Rate")
     st.pyplot(fig5)
-
 
 # -------------------------------
 # TAB 6: Visualisasi Statistik Deskriptif
@@ -186,4 +185,4 @@ with tab6:
         title="Mean dengan Label Min–Max per Genre"
     )
     fig_minmax_labels.update_traces(textposition="outside")
-    st.plotly_chart(fig_minmax_labels, use_container_width=True)
+    st.plotly_chart(fig_minmax_labels, use_container
