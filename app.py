@@ -185,4 +185,4 @@ with tab6:
         title="Mean dengan Label Min–Max per Genre"
     )
     fig_minmax_labels.update_traces(textposition="outside")
-    st.plotly_chart(fig_minmax_labels, use_container
+    st.plotly_chart(fig_minmax_labels, use_container_width=True)
