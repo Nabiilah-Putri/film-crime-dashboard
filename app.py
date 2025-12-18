@@ -146,33 +146,55 @@ with tab5:
     st.pyplot(fig5)
 
 # -------------------------------
-# TAB 6: Visualisasi Statistik Deskriptif
+# TAB 6: Visualisasi Statistik Deskriptif (REVISI)
 # -------------------------------
 with tab6:
     st.subheader("Visualisasi Statistik Deskriptif")
 
-    # Ambil stats dari Tab 5
     num_cols = [c for c in final_data.columns if c not in ["Negara", "Tahun"]]
-    stats = filtered[num_cols].agg(["mean", "std", "min", "max", "median"]).T
-    stats = stats.rename(columns={
-        "mean": "Mean", "std": "Std", "min": "Min", "max": "Max", "median": "Median"
-    })
+    stats = filtered[num_cols].agg(["mean", "std", "min", "max"]).T.reset_index()
+    stats.columns = ["Variabel", "Mean", "Std", "Min", "Max"]
 
-    # Bar chart Mean per Genre
-    fig_mean = px.bar(stats.reset_index(), x="index", y="Mean", title="Rata-rata Film per Genre")
+    # === BAR CHART MEAN ===
+    fig_mean = px.bar(
+        stats,
+        x="Variabel",
+        y="Mean",
+        color="Variabel",
+        text="Mean",
+        title="Rata-rata (Mean) per Variabel"
+    )
+    fig_mean.update_traces(texttemplate="%{text:.2f}", textposition="outside")
+    fig_mean.update_layout(showlegend=False)
     st.plotly_chart(fig_mean, use_container_width=True)
 
-    # Error bar chart (Mean ± Std)
-    fig_error = px.bar(stats.reset_index(), x="index", y="Mean", error_y=stats["Std"],
-                       title="Mean dengan Standard Deviation per Genre")
-    st.plotly_chart(fig_error, use_container_width=True)
+    # === ERROR BAR (MEAN ± STD) ===
+    fig_std = px.bar(
+        stats,
+        x="Variabel",
+        y="Mean",
+        error_y="Std",
+        color="Variabel",
+        text="Std",
+        title="Mean dengan Standar Deviasi"
+    )
+    fig_std.update_traces(texttemplate="±%{text:.2f}", textposition="outside")
+    fig_std.update_layout(showlegend=False)
+    st.plotly_chart(fig_std, use_container_width=True)
 
-    # Radar chart (Spider plot)
-    fig_radar = go.Figure()
-    fig_radar.add_trace(go.Scatterpolar(
-        r=stats["Mean"],
-        theta=stats.index,
-        fill='toself'
-    ))
-    fig_radar.update_layout(title="Radar Chart Mean per Genre", polar=dict(radialaxis=dict(visible=True)))
-    st.plotly_chart(fig_radar, use_container_width=True)
+    # === RANGE PLOT (MIN–MAX) ===
+    fig_range = px.bar(
+        stats,
+        x="Variabel",
+        y="Max",
+        base="Min",
+        color="Variabel",
+        text="Max",
+        title="Rentang Nilai (Min–Max) per Variabel"
+    )
+    fig_range.update_traces(
+        texttemplate="Max: %{text:.2f}",
+        textposition="outside"
+    )
+    fig_range.update_layout(showlegend=False)
+    st.plotly_chart(fig_range, use_container_width=True)
