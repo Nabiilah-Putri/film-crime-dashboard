@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Dashboard Film & Kriminalitas ASEAN", layout="wide")
 
@@ -75,7 +76,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 ])
 
 # -------------------------------
-# TAB 1: Distribusi Genre
+# TAB 1: Distribusi Genre (perbandingan antar negara)
 # -------------------------------
 with tab1:
     st.subheader("Distribusi Genre Film per Negara")
@@ -87,7 +88,7 @@ with tab1:
     st.plotly_chart(fig, use_container_width=True)
 
 # -------------------------------
-# TAB 2: Tren Film & Crime Rate
+# TAB 2: Tren Film & Crime Rate (perbandingan antar negara)
 # -------------------------------
 with tab2:
     st.subheader("Tren Jumlah Film & Crime Rate per Negara")
@@ -104,7 +105,7 @@ with tab2:
     st.plotly_chart(fig2, use_container_width=True)
 
 # -------------------------------
-# TAB 3: Scatter Jumlah Film vs Crime Rate
+# TAB 3: Scatter Jumlah Film vs Crime Rate (perbandingan antar negara)
 # -------------------------------
 with tab3:
     st.subheader("Scatter Plot Jumlah Film vs Crime Rate per Negara")
@@ -115,7 +116,7 @@ with tab3:
     st.plotly_chart(fig3, use_container_width=True)
 
 # -------------------------------
-# TAB 4: Korelasi Heatmap
+# TAB 4: Korelasi Heatmap (gabungan data filter)
 # -------------------------------
 with tab4:
     st.subheader("Korelasi Genre dengan Crime Rate (gabungan data filter)")
@@ -150,33 +151,28 @@ with tab5:
 with tab6:
     st.subheader("Visualisasi Statistik Deskriptif")
 
-    stats_reset = stats.reset_index().rename(columns={"index": "Genre"})
+    # Ambil stats dari Tab 5
+    num_cols = [c for c in final_data.columns if c not in ["Negara", "Tahun"]]
+    stats = filtered[num_cols].agg(["mean", "std", "min", "max", "median"]).T
+    stats = stats.rename(columns={
+        "mean": "Mean", "std": "Std", "min": "Min", "max": "Max", "median": "Median"
+    })
 
     # Bar chart Mean per Genre
-    fig_mean = px.bar(stats_reset, x="Genre", y="Mean", title="Rata-rata Film per Genre")
+    fig_mean = px.bar(stats.reset_index(), x="index", y="Mean", title="Rata-rata Film per Genre")
     st.plotly_chart(fig_mean, use_container_width=True)
 
     # Error bar chart (Mean ± Std)
-    fig_error = px.bar(stats_reset, x="Genre", y="Mean", error_y=stats_reset["Std"],
+    fig_error = px.bar(stats.reset_index(), x="index", y="Mean", error_y=stats["Std"],
                        title="Mean dengan Standard Deviation per Genre")
     st.plotly_chart(fig_error, use_container_width=True)
 
-    # Error bar chart (Mean ± Min–Max)
-    fig_minmax = px.bar(stats_reset, x="Genre", y="Mean", title="Mean dengan Min–Max per Genre")
-    fig_minmax.update_traces(
-        error_y=dict(array=stats_reset["Max"] - stats_reset["Mean"]),
-        error_y_minus=dict(array=stats_reset["Mean"] - stats_reset["Min"])
-    )
-    st.plotly_chart(fig_minmax, use_container_width=True)
-
-    # Bar chart dengan label Min–Max
-    stats_reset["Label"] = stats_reset.apply(lambda row: f"Min:{row['Min']} | Max:{row['Max']}", axis=1)
-    fig_minmax_labels = px.bar(
-        stats_reset,
-        x="Genre",
-        y="Mean",
-        text="Label",
-        title="Mean dengan Label Min–Max per Genre"
-    )
-    fig_minmax_labels.update_traces(textposition="outside")
-    st.plotly_chart(fig_minmax_labels, use_container_width=True)
+    # Radar chart (Spider plot)
+    fig_radar = go.Figure()
+    fig_radar.add_trace(go.Scatterpolar(
+        r=stats["Mean"],
+        theta=stats.index,
+        fill='toself'
+    ))
+    fig_radar.update_layout(title="Radar Chart Mean per Genre", polar=dict(radialaxis=dict(visible=True)))
+    st.plotly_chart(fig_radar, use_container_width=True)
