@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Dashboard Film & Kriminalitas ASEAN", layout="wide")
 
@@ -65,12 +66,13 @@ col2.metric("Periode", f"{selected_years[0]}–{selected_years[1]}")
 col3.metric("Jumlah Data", len(filtered))
 
 # Tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Distribusi Genre", 
     "Tren Film & Crime Rate", 
     "Scatter Jumlah Film vs Crime Rate", 
     "Korelasi Heatmap", 
-    "Statistik Deskriptif"
+    "Statistik Deskriptif",
+    "Visualisasi Statistik"
 ])
 
 # -------------------------------
@@ -142,3 +144,35 @@ with tab5:
     sns.boxplot(x=filtered["Crime Rate"], color="lightgreen", ax=ax[1])
     ax[1].set_title("Boxplot Crime Rate")
     st.pyplot(fig5)
+
+# -------------------------------
+# TAB 6: Visualisasi Statistik Deskriptif
+# -------------------------------
+with tab6:
+    st.subheader("Visualisasi Statistik Deskriptif")
+
+    # Ambil stats dari Tab 5
+    num_cols = [c for c in final_data.columns if c not in ["Negara", "Tahun"]]
+    stats = filtered[num_cols].agg(["mean", "std", "min", "max", "median"]).T
+    stats = stats.rename(columns={
+        "mean": "Mean", "std": "Std", "min": "Min", "max": "Max", "median": "Median"
+    })
+
+    # Bar chart Mean per Genre
+    fig_mean = px.bar(stats.reset_index(), x="index", y="Mean", title="Rata-rata Film per Genre")
+    st.plotly_chart(fig_mean, use_container_width=True)
+
+    # Error bar chart (Mean ± Std)
+    fig_error = px.bar(stats.reset_index(), x="index", y="Mean", error_y=stats["Std"],
+                       title="Mean dengan Standard Deviation per Genre")
+    st.plotly_chart(fig_error, use_container_width=True)
+
+    # Radar chart (Spider plot)
+    fig_radar = go.Figure()
+    fig_radar.add_trace(go.Scatterpolar(
+        r=stats["Mean"],
+        theta=stats.index,
+        fill='toself'
+    ))
+    fig_radar.update_layout(title="Radar Chart Mean per Genre", polar=dict(radialaxis=dict(visible=True)))
+    st.plotly_chart(fig_radar, use_container_width=True)
