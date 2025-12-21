@@ -145,7 +145,7 @@ Dashboard ini dibuat sebagai bagian dari tugas akademik untuk menunjukkan kemamp
 ## 👥 Anggota Kelompok
 
 1. **Nabiilah Putri Karnaia** – NIM: 122450029
-2. **Amalia Melani Putri** – NIM: 122450121
+2. **Amalia Melani Putri** – NIM: 122450122
 3. **Fayyaza Aqila Syafitri Achjar** – NIM: 122450131
 
 ---
